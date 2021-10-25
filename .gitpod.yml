@@ -1,0 +1,16 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 4000
+    onOpen: open-browser
+
+tasks:
+  - init: 'mix deps.get && npm install --prefix ./assets/ && source gitpod_env.sh'
+    command: 'source gitpod_env.sh && mix phx.server'
+  - command: 'echo "if this is a new project please run mix loom.init when other setup finishes"'
+    openMode: split-right
+
+vscode:
+  extensions:
+    - elixir-lsp.elixir-ls@0.6.2:j/OgOgkgo0QJRBdZXhmoUQ==
