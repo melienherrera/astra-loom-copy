@@ -1,0 +1,70 @@
+<div class="h-screen flex" id="loom">
+  <div class="bg-gray-900 border-b-2 flex-one w-64">
+    <div class="font-sans text-white text-right uppercase font-extrabold align-baseline leading-none p-3">
+      <span class="text-sm text-gray-400">Astra</span><br/> <span class="text-6xl">loom</span>
+    </div>
+    <div class="bg-gray-800">
+      <span class="text-sm text-gray-400 text-2xl uppercase text-right">My threads</span>
+    </div>
+    <ul class="overflow-auto">
+      <%= for {name, thread} <- @threads do %>
+        <li>
+            <a class="block border py-2 px-4 hover:bg-blue-700 text-white bg-blue-200 <%= if thread["enabled"] do %> bg-blue-500 border-blue-500 <% end %>" href="#" phx-click="thread" phx-value-name="<%= name %>">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style='color:<%= Loom.Thread.to_color("thread:" <> name) %>' stroke="currentColor" class="h-4 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+            </svg>
+            <%= name %>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="flex-col flex flex-grow h-screen">
+    <div class="flex-grow overflow-auto relative" id="messages" phx-hook="Messages">
+
+      <%= for message <- @messages do %>
+        <div class="flex w-full max-w-full mb-1 <%= if !show_message?(message, @threads) do %>hidden <% end %>" id="messages-<%= message.id %>">
+          <div class="h-16 w-16 flex bg-cover rounded-t text-center overflow-hidden" style="background-image: url('<%= message.picture %>')" title="">
+          </div>
+
+          <div class="border-r w-full border-b border-l border-gray-400 bg-opacity-75 border-l-0 border-t  bg-white rounded-b rounded-b-none rounded-r p-2 flex flex-col leading-normal relative">
+            <div class="h-full left-0 top-0 w-2 inline-block absolute" style="background-color:<%= Loom.Thread.to_color(message.thread)%>"> </div>
+            <div class="inline-block pl-2">
+            <div>
+              <span class="text-orange-800 text-xs"><%= message.user %></span>
+            </div>
+            <div>
+              <%= message.message %>
+            </div>
+            <div class="mt-2">
+              <span class="text-xs">In</span>
+              <%= for thread <- message.other_threads do %>
+                <a phx-click="thread" phx-value-name="<%= List.last(String.split(thread, ":")) %>">
+                <span class="text-xs" style="color:<%= Loom.Thread.to_color(thread)%>"> <%= List.last(String.split(thread, ":")) %> </span> </a>
+              <% end %>
+            </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="flex-one h-32 p-3 bg-gray-100 bg-opacity-80">
+        <span>Posting to:</span>
+        <%= for target <- @targets do %>
+
+          <span style='background-color:<%= Loom.Thread.to_color("thread:" <> target) %>'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"  stroke="currentColor" class="h-4 inline-block">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+            </svg><%= target %></span>
+        <% end %>
+        <form phx-change="validate" phx-submit="send" class="w-full flex">
+          <div class="w-3/4">
+            <textarea id="message" rows="1" name="message" class="h-16 appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded  mb-3 leading-tight focus:outline-none focus:bg-white"><%=@message%></textarea>
+          </div>
+          <div class="w-1/4">
+            <button type="submit" class="w-full h-16 rshadow bg-blue-700 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold rounded" phx-disable-with="Sending...">Send</button>
+          </div>
+        </form>
+
+    </div>
+  </div>
+</div>
